@@ -1,10 +1,10 @@
 package main
 
 import (
-	"database/sql"
-	"gitlab.com/adl3905019/perumahan_go/api"
-	"gitlab.com/adl3905019/perumahan_go/cache"
-	util "gitlab.com/adl3905019/perumahan_go/utils"
+	"github.com/ariandi/kilat-be-go1/api"
+	"github.com/ariandi/kilat-be-go1/cache"
+	"github.com/ariandi/kilat-be-go1/db"
+	util "github.com/ariandi/kilat-be-go1/utils"
 	"log"
 )
 
@@ -13,16 +13,17 @@ func main() {
 	if err != nil {
 		log.Fatal("Cannot load config : ", err)
 	}
+	config.PdamCd = util.LoadPdamCd()
+	config.PdamAdmin = util.LoadPdamAdmin()
 
-	conn, err := sql.Open(config.DBDriver, config.DBSource)
+	mongoDb, err := db.Connect(config)
 	if err != nil {
 		log.Fatal("cannot connect to db", err)
 	}
 
-	store := db.NewStore(conn)
+	store := mongoDb.Database(config.MongoDbName)
 	redis := cache.NewRedisClient(config)
-	server, err := api.NewServer(config, store, redis)
-	//server := api.NewServer(store)
+	server, err := api.NewServer(config, redis, store)
 	if err != nil {
 		log.Fatal("cannot create server", err)
 	}

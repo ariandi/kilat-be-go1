@@ -2,9 +2,9 @@ package cache
 
 import (
 	"context"
+	util "github.com/ariandi/kilat-be-go1/utils"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
-	util "gitlab.com/adl3905019/perumahan_go/utils"
 	"strconv"
 	"time"
 )
@@ -14,11 +14,21 @@ type RedisClient struct {
 }
 
 var redisClient *RedisClient
+var ctx context.Context
 
 type RedisInterface interface {
 	SetRedisVal(key string, data string, duration int) error
 	GetRedisVal(key string) (string, error)
 	DeleteRedisVal(key string) error
+	TestConnection() error
+}
+
+func (o *RedisClient) TestConnection() error {
+	//if err := redisClient.redis.Ping(ctx); err != nil {
+	//	log.Fatal(err)
+	//}
+
+	return nil
 }
 
 func NewRedisClient(config util.Config) RedisInterface {

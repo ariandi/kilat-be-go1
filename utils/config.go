@@ -6,6 +6,8 @@ import (
 )
 
 type Config struct {
+	PdamCd              PdamCd
+	PdamAdmin           PdamAdmin
 	DBDriver            string        `mapstructure:"DB_DRIVER"`
 	DBSource            string        `mapstructure:"DB_SOURCE"`
 	ServerAddress       string        `mapstructure:"SERVER_ADDRESS"`
@@ -22,6 +24,11 @@ type Config struct {
 	DigiSellerUser      string        `mapstructure:"DIGI_SELLER_USERNAME"`
 	DigiApiKey          string        `mapstructure:"DIGI_API_KEY"`
 	WhiteListIP         string        `mapstructure:"WHITELIST_API"`
+	MongoUrl            string        `mapstructure:"MONGO_URL"`
+	MongoIsPassword     string        `mapstructure:"MONGO_IS_PASSWORD"`
+	MongoUser           string        `mapstructure:"MONGO_USER"`
+	MongoPassword       string        `mapstructure:"MONGO_PASSWORD"`
+	MongoDbName         string        `mapstructure:"MONGO_DB_NAME"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

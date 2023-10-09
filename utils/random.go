@@ -1,6 +1,7 @@
 package util
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"math/rand"
 	"strings"
@@ -80,4 +81,10 @@ func padLeft(nr int64) string {
 
 func RandomNumberUnique() int64 {
 	return RandomInt(1, 9999)
+}
+
+func StoreSha256(in []byte) string {
+	h := sha256.New()
+	h.Write(in)
+	return fmt.Sprintf("%x", h.Sum(nil))
 }

@@ -28,3 +28,7 @@ func StringToInt(val string) int {
 func FloatToString(val float64) string {
 	return strconv.FormatFloat(val, 'f', -1, 64)
 }
+
+func Int64ToString(num int64) string {
+	return strconv.FormatInt(num, 10)
+}
