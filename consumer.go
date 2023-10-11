@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Subscribe to the Kafka topic
-	topic := "purchases"
+	topic := "test-kafka"
 	err = consumer.SubscribeTopics([]string{topic}, nil)
 	if err != nil {
 		fmt.Printf("Error subscribing to topic: %v\n", err)
@@ -48,6 +48,7 @@ func main() {
 			ev, err := consumer.ReadMessage(100 * time.Millisecond)
 			if err != nil {
 				// Errors are informational and automatically handled by the consumer
+				fmt.Printf("error masuk sini")
 				continue
 			}
 			fmt.Printf("Consumed event from topic %s: key = %-10s value = %s\n",

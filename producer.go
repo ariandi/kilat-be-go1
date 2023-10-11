@@ -19,7 +19,7 @@ func main() {
 	}
 
 	// Produce a message to a Kafka topic
-	topic := "purchases"
+	topic := "topics-adl1_d"
 	message := "Hello, Kafka!"
 
 	// Asynchronous produce
@@ -34,10 +34,8 @@ func main() {
 
 	// Wait for delivery report
 	go func() {
-		fmt.Printf("apa dah ini \n")
 		fmt.Printf("cek event %v \n", producer.Events())
 		for e := range producer.Events() {
-			fmt.Printf("cek event2 %v \n", e)
 			switch ev := e.(type) {
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil {
