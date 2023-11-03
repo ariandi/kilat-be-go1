@@ -15,6 +15,7 @@ func main() {
 	}
 	config.PdamCd = util.LoadPdamCd()
 	config.PdamAdmin = util.LoadPdamAdmin()
+	config.TrxConstant = util.LoadTrxConstant()
 
 	mongoDb, err := db.Connect(config)
 	if err != nil {

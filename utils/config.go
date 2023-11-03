@@ -8,6 +8,7 @@ import (
 type Config struct {
 	PdamCd              PdamCd
 	PdamAdmin           PdamAdmin
+	TrxConstant         TrxConstant
 	DBDriver            string        `mapstructure:"DB_DRIVER"`
 	DBSource            string        `mapstructure:"DB_SOURCE"`
 	ServerAddress       string        `mapstructure:"SERVER_ADDRESS"`

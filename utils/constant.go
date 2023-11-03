@@ -22,6 +22,8 @@ const ErrCd9 = "1009"
 const ErrMsg9 = "ref id already use"
 const ErrCd10 = "1010"
 const ErrMsg10 = "biller error"
+const ErrCd11 = "1011"
+const ErrMsg11 = "save create transaction failed"
 
 const ErrCd99 = "9999"
 const ErrMsg99 = "General Error"
@@ -50,4 +52,35 @@ func LoadPdamAdmin() PdamAdmin {
 	}
 
 	return pdamAdmin
+}
+
+type TrxConstant struct {
+	TransactionType string
+	DepositType     string
+	TrxStatus       TrxStatus
+}
+
+func LoadTrxConstant() TrxConstant {
+	trxStatus := LoadTrxStatus()
+	return TrxConstant{
+		DepositType:     "0", // deposit
+		TransactionType: "1", // transaction
+		TrxStatus:       trxStatus,
+	}
+}
+
+type TrxStatus struct {
+	Success string
+	Inq     string
+	Failed  string
+	Pending string
+}
+
+func LoadTrxStatus() TrxStatus {
+	return TrxStatus{
+		Success: "0",
+		Pending: "1",
+		Failed:  "2",
+		Inq:     "3",
+	}
 }

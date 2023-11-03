@@ -22,13 +22,12 @@ var trxService *TransactionService
 const tbTrx = "transactions"
 
 // GetTransactionService is
-func GetTransactionService(config util.Config, store *mongo.Database, client *resty.Client) TransactionInterface {
+func GetTransactionService(config util.Config, store *mongo.Database) TransactionInterface {
 
 	if trxService == nil {
 		trxService = &TransactionService{
 			Store:  store,
 			Config: config,
-			Client: client,
 		}
 	}
 
@@ -49,7 +48,7 @@ func (t *TransactionService) CreateTrxService(ctx *gin.Context, in dto.Transacti
 		BillId:       in.BillId,
 		TxId:         in.TxId,
 		RefId:        in.RefId,
-		Type:         "1",
+		Type:         in.Type,
 		Status:       "3",
 		Sign:         in.Sign,
 		MerchantId:   in.MerchantId,
@@ -58,11 +57,14 @@ func (t *TransactionService) CreateTrxService(ctx *gin.Context, in dto.Transacti
 		CategoryName: in.CategoryName,
 		ProductId:    in.ProductId,
 		ProductName:  in.ProductName,
-		ReqParam:     dto.InqReq{},
+		ReqParam:     in.ReqParam,
+		ResParam:     in.ResParam,
 		BatchTime:    1,
 		Active:       1,
 		CreatedAt:    time.Time.Format(time.Now(), "2006-01-02 15:04:05"),
 		CreatedBy:    in.CreatedBy,
+		UpdatedAt:    time.Time.Format(time.Now(), "2006-01-02 15:04:05"),
+		UpdatedBy:    in.CreatedBy,
 		TxDate:       in.TxDate,
 	}
 	out, err := t.Store.Collection(tbTrx).InsertOne(ctx, arg)

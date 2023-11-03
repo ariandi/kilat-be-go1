@@ -8,6 +8,7 @@ import (
 	util "github.com/ariandi/kilat-be-go1/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/go-resty/resty/v2"
+	"github.com/jinzhu/copier"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"strings"
@@ -25,10 +26,12 @@ const bankTb = "8"
 const locketTb = "KTM"
 const sKey = "FXDD23411"
 const redBoxUser = "redbox01"
+const categoryName = "PDAM"
 
 var pdamTbService *PdamTbService
 var proxySvc ProxyInterface
 var bankSvc BankInterface
+var trxSvc TransactionInterface
 
 type PdamTbInterface interface {
 	InqPdamTb(ctx *gin.Context, in dto.InqReq) (dto.InqRes, error)
@@ -39,6 +42,7 @@ func GetPdamTbService(config util.Config, store *mongo.Database, client *resty.C
 	if pdamTbService == nil {
 		proxySvc = GetProxyService(config, client)
 		bankSvc = GetBankService(config, store)
+		trxSvc = GetTransactionService(config, store)
 		pdamTbService = &PdamTbService{
 			Config: config,
 			Client: client,
@@ -101,8 +105,17 @@ func (s *PdamTbService) InqPdamTb(ctx *gin.Context, in dto.InqReq) (dto.InqRes, 
 
 func (s *PdamTbService) mappingResKilatTb(ctx *gin.Context, in dto.TbSetResponse) dto.InqRes {
 	var out dto.InqRes
+	out.TxId = util.SetTxID()
 	if in.TbResponse.ResultCode != 0 {
 		logrus.Println("[PdamTbService mappingResKilatTb] transaction not success in biller")
+		err := s.setSaveTrx(ctx, in)
+		if err != nil {
+			logrus.Println("[PdamTbService mappingResKilatTb] create transaction not success")
+			out.ResultCd = util.ErrCd11
+			out.ResultMsg = util.ErrMsg11
+			return out
+		}
+
 		out.ResultCd = util.ErrCd10
 		out.ResultMsg = util.ErrMsg10 + " : " + util.Int64ToString(in.TbResponse.ResultCode) + " " + s.responseMsg(in.TbResponse)
 		return out
@@ -117,6 +130,16 @@ func (s *PdamTbService) mappingResKilatTb(ctx *gin.Context, in dto.TbSetResponse
 		TbResponse:  in.TbResponse,
 	}
 	out = s.setInqRes(ctx, arg)
+
+	copier.Copy(&arg.InqResponse, out)
+	err := s.setSaveTrx(ctx, arg)
+	if err != nil {
+		logrus.Println("[PdamTbService mappingResKilatTb] create transaction not success")
+		out.ResultCd = util.ErrCd11
+		out.ResultMsg = util.ErrMsg11
+		return out
+	}
+
 	return out
 }
 
@@ -141,7 +164,7 @@ func (s *PdamTbService) setInqRes(ctx *gin.Context, in dto.TbSetResponse) dto.In
 		ResultCd:        in.InqResponse.ResultCd,
 		ResultMsg:       in.InqResponse.ResultMsg,
 		TxDate:          in.InqRequest.TrxDate,
-		TxId:            util.SetTxID(),
+		TxId:            in.InqResponse.TxId,
 		RefId:           in.InqRequest.RefId,
 		ProductCode:     in.InqRequest.ProductCode,
 		BillId:          in.InqRequest.BillId,
@@ -201,6 +224,31 @@ func (s *PdamTbService) setInqResDetailArr(in dto.TbSetResponse, resDetail dto.D
 	out.Total = out.Billamount + out.AdminPpob + out.Fine
 
 	return out
+}
+
+func (s *PdamTbService) setSaveTrx(ctx *gin.Context, in dto.TbSetResponse) error {
+	status := s.Config.TrxConstant.TrxStatus.Success
+	if in.TbResponse.ResultCode != 0 {
+		status = s.Config.TrxConstant.TrxStatus.Failed
+	}
+
+	trxArg := dto.TransactionCreate{}
+
+	copier.Copy(&trxArg, in.InqRequest)
+	trxArg.TxId = in.InqResponse.TxId
+	trxArg.Type = s.Config.TrxConstant.TransactionType
+	trxArg.Status = status
+	trxArg.CategoryName = categoryName
+	trxArg.ProductName = in.InqResponse.Detail.ProductName
+	trxArg.ReqParam = in.InqRequest
+	trxArg.ResParam = in.InqResponse
+
+	_, err := trxSvc.CreateTrxService(ctx, trxArg)
+	if err != nil {
+		logrus.Info("[PdamTbService setSaveTrx] error is " + err.Error())
+	}
+
+	return err
 }
 
 func (s *PdamTbService) responseMsg(in dto.PdamTb) string {

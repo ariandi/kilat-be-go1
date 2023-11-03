@@ -6,7 +6,7 @@ import (
 )
 
 type Transaction struct {
-	Id              primitive.ObjectID `json:"_id" bson:"_id"`
+	Id              primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
 	BillId          string             `json:"bill_id" bson:"bill_id"`
 	TxId            string             `json:"tx_id" bson:"tx_id"`
 	RefId           string             `json:"ref_id" bson:"ref_id"`
@@ -36,7 +36,7 @@ type Transaction struct {
 	Active          int                `json:"active" bson:"active"`
 	CreatedAt       string             `json:"created_at" bson:"created_at"`
 	CreatedBy       string             `json:"created_by" bson:"created_by"`
-	UpdatedAt       string             `json:"updated_at" bson:"updated_at"`
-	UpdatedBy       string             `json:"updated_by" bson:"updated_by"`
+	UpdatedAt       string             `json:"updated_at,omitempty" bson:"updated_at,omitempty"`
+	UpdatedBy       string             `json:"updated_by,omitempty" bson:"updated_by,omitempty"`
 	TxDate          string             `json:"tx_date" bson:"tx_date"`
 }
