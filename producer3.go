@@ -78,7 +78,7 @@ func main() {
 		return
 	}
 
-	producer.Flush(10000) // Adjust the timeout as needed.
+	// producer.Flush(10000) // Adjust the timeout as needed.
 
 	fmt.Printf("Message sent to partition: %s\n", string(message2.Key))
 }
